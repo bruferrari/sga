@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="/templates/modeloSistema.xhtml">
+
+	<ui:define name="header">
+		<ui:include src="/includes/header.xhtml" />
+	</ui:define>
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuAlternativo.xhtml" />
+	</ui:define>
+
+	<ui:define name="bottom">
+		<ui:include src="/includes/bottom.xhtml" />
+	</ui:define>
+
+	<ui:define name="conteudo">
+		<h:form>
+			<p:panelGrid style="margin-top: 20px;" columns="6">
+				<f:facet name="header">
+					<p:outputLabel value="Filtro de Pesquisa" />
+
+				</f:facet>
+				<h:outputLabel value="Questão:" />
+				<p:inputText value="#{MBQuestao_topico.assunto}" />
+
+				<h:outputLabel value="Tópico:" />
+				<p:inputText value="#{MBQuestao_topico.descricao}" />
+
+				<p:commandButton value="Buscar"
+					actionListener="#{MBQuestao_topico.carregarListagem}"
+					update=":frmQuestao_topicoListagem:tblQuestao_topicoListagem" />
+			</p:panelGrid>
+		</h:form>
+
+		<h:form id="frmQuestao_topicoListagem">
+			<p:dataTable id="tblQuestao_topicoListagem"
+				widgetVar="tabelaQuestao_topicoListagem"
+				emptyMessage="Digite o que deseja na busca acima ou clique em 'Buscar' para todos os itens..."
+				value="#{MBQuestao_topico.itens}" var="item" paginator="true"
+				rows="6" filteredValue="#{MBQuestao_topico.itensFiltrados}"
+				style="margin-top: 20px;">
+
+				<f:facet name="header">Atribuição de Questão</f:facet>
+
+				<p:column headerText="Questão" sortBy="#{item.questao.assunto}">
+					<h:outputText value="#{item.questao.assunto}" />
+				</p:column>
+
+				<p:column headerText="Tópico" sortBy="#{item.topico.descricao}">
+					<h:outputText value="#{item.topico.descricao}" />
+				</p:column>
+
+				<p:column headerText="Opções" width="80" style="text-align: center">
+					<p:commandButton icon="ui-icon-minus"
+						oncomplete="PF('dlgQuestaoAtribExcluir').show();"
+						update=":frmQuestaoAtribExcluir:pnlQuestaoAtribExcluir">
+						<f:setPropertyActionListener
+							target="#{MBQuestao_topico.questao_topico}" value="#{item}" />
+					</p:commandButton>
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton icon="ui-icon-plus" value="Nova Atribuição"
+						oncomplete="PF('dlgQuestaoAtribNovo').show();"
+						actionListener="#{MBQuestao_topico.prepararNovo}"
+						update=":frmQuestaoAtribNovo:pnlQuestaoAtribNovo :msgGlobal" />
+				</f:facet>
+			</p:dataTable>
+		</h:form>
+
+		<p:dialog widgetVar="dlgQuestaoAtribNovo" closable="false"
+			draggable="false" resizable="false" modal="true" appendTo="@(body)"
+			header="Nova atribuição">
+
+			<h:form id="frmQuestaoAtribNovo">
+
+				<h:panelGrid id="pnlQuestaoAtribNovo" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+
+					<h:outputLabel value="Questão" />
+					<p:selectOneMenu
+						value="#{MBQuestao_topico.questao_topico.questao.codigo}"
+						required="true" filter="true"
+						requiredMessage="Por favor, selecione uma questão para atribuir."
+						style="width: 250px;">
+						<f:selectItem itemLabel="Selecione..." itemValue="" />
+						<f:selectItems value="#{MBQuestao_topico.comboquestao}" var="item"
+							itemValue="#{item.codigo}" itemLabel="#{item.assunto}" />
+					</p:selectOneMenu>
+
+					<h:outputLabel value="Tópico" />
+					<p:selectOneMenu
+						value="#{MBQuestao_topico.questao_topico.topico.codigo}"
+						required="true" filter="true"
+						requiredMessage="Por favor selecione um tópico para atribuir."
+						style="width: 250px;">
+						<f:selectItem itemLabel="Selecione..." itemValue="" />
+						<f:selectItems value="#{MBQuestao_topico.combotopico}" var="item"
+							itemValue="#{item.codigo}" itemLabel="#{item.descricao}" />
+					</p:selectOneMenu>
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton icon="ui-icon-check" value="Atribuir"
+						actionListener="#{MBQuestao_topico.novo}" update=":msgGlobal"
+						oncomplete="verificar(xhr, status, args, 'dlgQuestaoAtribNovo')" />
+					<p:commandButton icon="ui-icon-cancel" value="Cancelar"
+						oncomplete="PF('dlgQuestaoAtribNovo').hide();" process="@this" />
+				</h:panelGrid>
+
+			</h:form>
+
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgQuestaoAtribExcluir" closable="false"
+			draggable="false" resizable="false" modal="true" appendTo="@(body)"
+			header="Desvincular Atribuição">
+			<h:form id="frmQuestaoAtribExcluir">
+				<h:panelGrid id="pnlQuestaoAtribExcluir" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+					<h:outputLabel value="Questão: " />
+					<h:outputText
+						value="#{MBQuestao_topico.questao_topico.questao.assunto}" />
+
+					<h:outputLabel value="Tópico: " />
+					<h:outputText
+						value="#{MBQuestao_topico.questao_topico.topico.descricao}" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton icon="ui-icon-link" value="Desvincular"
+						actionListener="#{MBQuestao_topico.excluir}"
+						update=":msgGlobal :frmQuestao_topicoListagem:tblQuestao_topicoListagem"
+						oncomplete="PF('dlgQuestaoAtribExcluir').hide(); tabelaQuestao_topicoListagem.clearFilters();" />
+					<p:commandButton icon="ui-icon-cancel" value="Cancelar"
+						oncomplete="PF('dlgQuestaoAtribExcluir').hide();" process="@this" />
+				</h:panelGrid>
+			</h:form>
+
+		</p:dialog>
+
+
+	</ui:define>
+
+
+
+</ui:composition>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+	<session-factory>
+
+		<!-- Database connection settings -->
+		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="connection.url">jdbc:mysql://localhost:3306/projeto_sga</property>
+		<property name="connection.username">root</property>
+		<property name="connection.password">root</property>
+
+		<!-- JDBC connection pool (use the built-in) -->
+		<property name="connection.pool_size">1</property>
+
+		<!-- SQL dialect -->
+		<property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
+
+		<!-- Enable Hibernate's automatic session context management -->
+		<property name="current_session_context_class">thread</property>
+
+		<!-- Disable the second-level cache -->
+		<property name="cache.provider_class">org.hibernate.cache.internal.NoCacheProvider</property>
+
+		<!-- Echo all executed SQL to stdout -->
+		<property name="show_sql">true</property>
+
+		<!-- Drop and re-create the database schema on startup -->
+		<property name="hbm2ddl.auto">create</property>
+
+		<mapping class="br.com.sga.domain.Professor" />
+		<mapping class="br.com.sga.domain.Disciplina" />
+		<mapping class="br.com.sga.domain.Turma" />
+		<mapping class="br.com.sga.domain.Topico" />
+		<mapping class="br.com.sga.domain.Aluno" />
+		<mapping class="br.com.sga.domain.Questao" />
+		<mapping class="br.com.sga.domain.Docente_disciplina" />
+		<mapping class="br.com.sga.domain.Questao_topico"/>
+		<mapping class="br.com.sga.domain.Resposta"/>
+		<mapping class="br.com.sga.domain.Atividade"/>
+		<mapping class="br.com.sga.domain.Atividade_questao"/>
+		
+	</session-factory>
+
+</hibernate-configuration>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="/templates/modeloSistema.xhtml">
+
+	<ui:define name="header">
+		<ui:include src="/includes/header.xhtml" />
+	</ui:define>
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuAlternativo.xhtml" />
+	</ui:define>
+
+	<ui:define name="bottom">
+		<ui:include src="/includes/bottom.xhtml" />
+	</ui:define>
+
+	<ui:define name="conteudo">
+		<h:form>
+			<p:panelGrid style="margin-top: 20px;" columns="6">
+				<f:facet name="header">
+					<p:outputLabel value="Filtro de Pesquisa" />
+
+				</f:facet>
+				<h:outputLabel value="Docente:" />
+				<p:inputText value="#{MBDocente_disciplina.professor}" />
+
+				<h:outputLabel value="Disciplina:" />
+				<p:inputText value="#{MBDocente_disciplina.disciplina}" />
+
+				<p:commandButton value="Buscar"
+					actionListener="#{MBDocente_disciplina.carregarListagem}"
+					update=":frmDocente_disciplinaListagem:tblDocente_disciplinaListagem" />
+			</p:panelGrid>
+		</h:form>
+
+		<h:form id="frmDocente_disciplinaListagem">
+			<p:dataTable id="tblDocente_disciplinaListagem"
+				widgetVar="tabelaDocente_disciplinaListagem"
+				emptyMessage="Digite o que deseja na busca acima ou clique em 'Buscar' para todos os itens..."
+				value="#{MBDocente_disciplina.itens}" var="item" paginator="true"
+				rows="6" filteredValue="#{MBDocente_disciplina.itensFiltrados}"
+				style="margin-top: 20px;">
+
+				<f:facet name="header">Atribuições</f:facet>
+
+				<p:column headerText="Professor" sortBy="#{item.professor.profNome}">
+					<h:outputText value="#{item.professor.profNome}" />
+				</p:column>
+
+				<p:column headerText="Disciplina"
+					sortBy="#{item.disciplina.descricao}">
+					<h:outputText value="#{item.disciplina.descricao}" />
+				</p:column>
+
+				<p:column headerText="Opções" width="80" style="text-align: center">
+					<p:commandButton icon="ui-icon-minus"
+						oncomplete="PF('dlgAtribExcluir').show();"
+						update=":frmAtribExcluir:pnlAtribExcluir">
+						<f:setPropertyActionListener
+							target="#{MBDocente_disciplina.docente_disciplina}"
+							value="#{item}" />
+					</p:commandButton>
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton icon="ui-icon-plus" value="Nova Atribuição"
+						oncomplete="PF('dlgAtribNovo').show();"
+						actionListener="#{MBDocente_disciplina.prepararNovo}"
+						update=":frmAtribNovo:pnlAtribNovo :msgGlobal" />
+				</f:facet>
+			</p:dataTable>
+		</h:form>
+
+		<p:dialog widgetVar="dlgAtribNovo" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Nova Atribuição">
+			<h:form id="frmAtribNovo">
+				<h:panelGrid id="pnlAtribNovo" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+
+					<h:outputLabel value="Docente:" />
+					<p:selectOneMenu
+						value="#{MBDocente_disciplina.docente_disciplina.professor.profCod}"
+						required="true" filter="true"
+						requiredMessage="Por favor, selecione um docente para atribuir."
+						style="width: 250px;">
+
+						<f:selectItem id="somAtribNovoDoc"
+							itemLabel="Selecione um docente..." itemValue="" />
+
+						<f:selectItems value="#{MBDocente_disciplina.comboProfessor}"
+							var="item" itemValue="#{item.profCod}"
+							itemLabel="#{item.profNome}" />
+					</p:selectOneMenu>
+
+					<h:outputLabel value="Disciplina:" />
+					<p:selectOneMenu
+						value="#{MBDocente_disciplina.docente_disciplina.disciplina.codigo}"
+						required="true" filter="true"
+						requiredMessage="Por favor, selecione uma disciplina a ser atribuída."
+						style="width: 250px;">
+
+						<f:selectItem id="somAtribNovoDisc"
+							itemLabel="Selecione uma disciplina..." itemValue="" />
+
+						<f:selectItems value="#{MBDocente_disciplina.comboDisciplina}"
+							var="item" itemValue="#{item.codigo}"
+							itemLabel="#{item.descricao}" />
+					</p:selectOneMenu>
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton icon="ui-icon-check" value="Atribuir"
+						actionListener="#{MBDocente_disciplina.novo}"
+						update=":msgGlobal"
+						oncomplete="verificar(xhr, status, args, 'dlgAtribNovo')" />
+
+					<p:commandButton icon="ui-icon-cancel" value="Cancelar"
+						oncomplete="PF('dlgAtribNovo').hide();" process="@this">
+						<p:resetInput target="dlgAtribNovo" />
+					</p:commandButton>
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgAtribExcluir" closable="false"
+			draggable="false" resizable="false" modal="true" appendTo="@(body)"
+			header="Desvincular Atribuição">
+			<h:form id="frmAtribExcluir">
+				<h:panelGrid id="pnlAtribExcluir" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+					<h:outputLabel value="Docente:" />
+					<h:outputText
+						value="#{MBDocente_disciplina.docente_disciplina.professor.profNome}" />
+
+					<h:outputLabel value="Disciplina:" />
+					<h:outputText
+						value="#{MBDocente_disciplina.docente_disciplina.disciplina.descricao}" />
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton icon="ui-icon-link" value="Desvincular"
+						actionListener="#{MBDocente_disciplina.excluir}"
+						update=":msgGlobal :frmDocente_disciplinaListagem:tblDocente_disciplinaListagem"
+						oncomplete="PF('dlgAtribExcluir').hide(); tabelaDocente_disciplinaListagem.clearFilters();" />
+					<p:commandButton icon="ui-icon-cancel" value="Cancelar"
+						oncomplete="PF('dlgAtribExcluir').hide();" process="@this" />
+				</h:panelGrid>
+
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+
+</ui:composition>

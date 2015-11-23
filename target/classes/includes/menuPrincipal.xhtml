@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+
+	<h:form>
+		<p:menubar>
+			<p:submenu label="Arquivo">
+				<p:menuitem value="Sair" />
+			</p:submenu>
+			
+			<p:submenu label="Cadastros">
+				<p:menuitem value="Professores" outcome="/pages/professor.xhtml" />
+				<p:menuitem value="Turmas" />
+				<p:menuitem value="Disciplinas" />
+				<p:menuitem value="Alunos" />
+				<p:menuitem value="Questões" />
+			</p:submenu>
+			
+			<p:submenu label="Consultas">
+				<p:menuitem value="Turmas" />
+				<p:menuitem value="Disciplinas" />
+				<p:menuitem value="Alunos Cadastrados" />
+				<p:menuitem value="Banco de Questões" />
+			</p:submenu>
+			
+			<p:submenu label="Ajuda">
+				<p:menuitem value="Sobre" />
+			</p:submenu>
+		</p:menubar>
+	</h:form>
+</ui:composition>

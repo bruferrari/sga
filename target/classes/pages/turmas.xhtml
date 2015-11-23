@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="/templates/modeloSistema.xhtml">
+
+
+	<ui:define name="header">
+		<ui:include src="/includes/header.xhtml" />
+	</ui:define>
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuAlternativo.xhtml" />
+	</ui:define>
+
+	<ui:define name="bottom">
+		<ui:include src="/includes/bottom.xhtml" />
+	</ui:define>
+
+	<ui:define name="conteudo">
+		<f:event listener="#{MBTurma.carregarListagem}" type="preRenderView" />
+
+		<h:form id="frmTurmaListagem">
+			<p:dataTable id="tblTurmaListagem" widgetVar="tabelaTurmaListagem"
+				emptyMessage="Nenhum Registro Encontrado!" value="#{MBTurma.itens}"
+				var="item" paginator="true" rows="8"
+				filteredValue="#{MBTurma.itensFiltrados}">
+
+				<f:facet name="header">
+					<h:outputText value="Cadastro de Turmas" />
+				</f:facet>
+
+				<p:column headerText="Código" sortBy="#{item.codigo}"
+					filterBy="#{item.codigo}">
+					<h:outputText value="#{item.codigo}" />
+				</p:column>
+
+				<p:column headerText="Ciclo" sortBy="#{item.ciclo}"
+					filterBy="#{item.ciclo}">
+					<h:outputText value="#{item.ciclo}" />
+				</p:column>
+
+				<p:column headerText="Ano" sortBy="#{item.ano}"
+					filterBy="#{item.ano}">
+					<h:outputText value="#{item.ano}" />
+				</p:column>
+
+				<p:column headerText="Período" sortBy="#{item.periodo}"
+					filterBy="#{item.periodo}">
+					<h:outputText value="#{item.periodo}" />
+				</p:column>
+
+				<p:column headerText="Opções" style="text-align: center;">
+					<p:commandButton icon="ui-icon-trash"
+						oncomplete="PF('dlgTurmaExcluir').show();"
+						update=":frmTurmaExcluir:pnlTurmaExcluir">
+						<f:setPropertyActionListener target="#{MBTurma.turma}"
+							value="#{item}" />
+					</p:commandButton>
+
+					<p:commandButton icon="ui-icon-pencil"
+						oncomplete="PF('dlgTurmaEditar').show();"
+						update=":frmTurmaEditar:pnlTurmaEditar">
+						<f:setPropertyActionListener target="#{MBTurma.turma}"
+							value="#{item}"></f:setPropertyActionListener>
+					</p:commandButton>
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton icon="ui-icon-document" value="Novo"
+						oncomplete="PF('dlgTurmaNovo').show();"
+						actionListener="#{MBTurma.prepararNovo}"
+						update=":frmTurmaNovo:pnlTurmaNovo :msgGlobal" />
+				</f:facet>
+			</p:dataTable>
+		</h:form>
+
+		<p:dialog widgetVar="dlgTurmaNovo" closable="false" resizable="false"
+			draggable="false" modal="true" appendTo="@(body)"
+			header="Turma - Novo Registro">
+			<h:form id="frmTurmaNovo">
+				<h:panelGrid id="pnlTurmaNovo" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+					<h:outputLabel for="somCicloTurmaNovo" value="Ciclo:" />
+					<p:selectOneMenu id="somCicloTurmaNovo"
+						value="#{MBTurma.turma.ciclo}" required="true"
+						requiredMessage="Por favor, selecione um ciclo.">
+						<f:selectItem itemLabel="Selecione um Ciclo" itemValue="" />
+						<f:selectItem itemLabel="1º" itemValue="1º" />
+						<f:selectItem itemLabel="2º" itemValue="2º" />
+						<f:selectItem itemLabel="3º" itemValue="3º" />
+						<f:selectItem itemLabel="4º" itemValue="4º" />
+						<f:selectItem itemLabel="5º" itemValue="5º" />
+						<f:selectItem itemLabel="6º" itemValue="6º" />
+					</p:selectOneMenu>
+
+					<h:outputLabel for="somAnoTurmaNovo" value="Ano:" />
+					<p:selectOneMenu id="somAnoTurmaNovo" value="#{MBTurma.turma.ano}"
+						required="true" requiredMessage="Por favor, selecione um ano.">
+						<f:selectItem itemLabel="Selecione um Ano" itemValue="" />
+						<f:selectItem itemLabel="2019" itemValue="2019" />
+						<f:selectItem itemLabel="2018" itemValue="2018" />
+						<f:selectItem itemLabel="2017" itemValue="2017" />
+						<f:selectItem itemLabel="2016" itemValue="2016" />
+						<f:selectItem itemLabel="2015" itemValue="2015" />
+						<f:selectItem itemLabel="2014" itemValue="2014" />
+						<f:selectItem itemLabel="2013" itemValue="2013" />
+						<f:selectItem itemLabel="2012" itemValue="2012" />
+						<f:selectItem itemLabel="2011" itemValue="2011" />
+						<f:selectItem itemLabel="2010" itemValue="2010" />
+						<f:selectItem itemLabel="2009" itemValue="2009" />
+					</p:selectOneMenu>
+
+					<h:outputLabel for="somPerTurmaNovo" value="Período:" />
+					<p:selectOneMenu id="somPerTurmaNovo"
+						value="#{MBTurma.turma.periodo}" required="true"
+						requiredMessage="Por favor, selecione um período.">
+						<f:selectItem itemLabel="Selecione um Período" itemValue="" />
+						<f:selectItem itemLabel="Matutino" itemValue="Matutino" />
+						<f:selectItem itemLabel="Vespertino" itemValue="Vespertino" />
+						<f:selectItem itemLabel="Noturno" itemValue="Noturno" />
+					</p:selectOneMenu>
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar" actionListener="#{MBTurma.novo}"
+						icon="ui-icon-disk"
+						update=":msgGlobal :frmTurmaListagem:tblTurmaListagem"
+						oncomplete="verificar(xhr, status, args, 'dlgTurmaNovo', 'tabelaTurmaListagem')" />
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgTurmaNovo').hide();" process="@this">
+						<p:resetInput target="pnlTurmaNovo"></p:resetInput>
+					</p:commandButton>
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgTurmaExcluir" closable="false"
+			draggable="false" resizable="false" modal="true" appendTo="@(body)"
+			header="Turma - Excluir Registro">
+			<h:form id="frmTurmaExcluir">
+				<h:panelGrid id="pnlTurmaExcluir" columns="2">
+					<p:outputLabel value="Código: " />
+					<h:outputText value="#{MBTurma.turma.codigo}" />
+
+					<p:outputLabel value="Ciclo: " />
+					<h:outputText value="#{MBTurma.turma.ciclo}" />
+
+					<p:outputLabel value="Ano: " />
+					<h:outputText value="#{MBTurma.turma.ano}" />
+
+					<p:outputLabel value="Período:" />
+					<h:outputText value="#{MBTurma.turma.periodo}" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Excluir" icon="ui-icon-trash"
+						actionListener="#{MBTurma.excluir}"
+						update=":msgGlobal :frmTurmaListagem:tblTurmaListagem"
+						oncomplete="PF('dlgTurmaExcluir').hide(); tabelaTurmaListagem.clearFilters();" />
+
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgTurmaExcluir').hide();" />
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgTurmaEditar" closable="false"
+			draggable="false" resizable="false" modal="true" appendTo="@(body)"
+			header="Turma - Editar Registro">
+			<h:form id="frmTurmaEditar">
+				<h:panelGrid id="pnlTurmaEditar" style="margin-bottom:10px"
+					cellpadding="5">
+					<p:outputLabel value="Código: " />
+					<h:outputText value="#{MBTurma.turma.codigo}" />
+
+					<p:outputLabel value="Ciclo: " />
+					<p:selectOneMenu id="somCicloTurmaNovo"
+						value="#{MBTurma.turma.ciclo}" required="true"
+						requiredMessage="Por favor, selecione um ciclo.">
+						<f:selectItem itemLabel="Selecione um Ciclo" itemValue="" />
+						<f:selectItem itemLabel="1º" itemValue="1º" />
+						<f:selectItem itemLabel="2º" itemValue="2º" />
+						<f:selectItem itemLabel="3º" itemValue="3º" />
+						<f:selectItem itemLabel="4º" itemValue="4º" />
+						<f:selectItem itemLabel="5º" itemValue="5º" />
+						<f:selectItem itemLabel="6º" itemValue="6º" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Ano: " />
+					<p:selectOneMenu id="somAnoTurmaNovo" value="#{MBTurma.turma.ano}"
+						required="true" requiredMessage="Por favor, selecione um ano.">
+						<f:selectItem itemLabel="Selecione um Ano" itemValue="" />
+						<f:selectItem itemLabel="2014" itemValue="2014" />
+						<f:selectItem itemLabel="2013" itemValue="2013" />
+						<f:selectItem itemLabel="2012" itemValue="2012" />
+						<f:selectItem itemLabel="2011" itemValue="2011" />
+						<f:selectItem itemLabel="2010" itemValue="2010" />
+						<f:selectItem itemLabel="2009" itemValue="2009" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Período: " />
+					<p:selectOneMenu id="somPerTurmaNovo"
+						value="#{MBTurma.turma.periodo}" required="true"
+						requiredMessage="Por favor, selecione um período.">
+						<f:selectItem itemLabel="Selecione um Período" itemValue="" />
+						<f:selectItem itemLabel="Matutino" itemValue="Matutino" />
+						<f:selectItem itemLabel="Vespertino" itemValue="Vespertino" />
+						<f:selectItem itemLabel="Noturno" itemValue="Noturno" />
+					</p:selectOneMenu>
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar" actionListener="#{MBTurma.editar}"
+						update=":msgGlobal :frmTurmaListagem:tblTurmaListagem"
+						oncomplete="verificar(xhr, status, args, 'dlgTurmaEditar', 'tabelaTurmaListagem')"
+						icon="ui-icon-disk" />
+
+
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgTurmaEditar').hide();" process="@this">
+						<p:resetInput target="dlgTurmaEditar"></p:resetInput>
+					</p:commandButton>
+				</h:panelGrid>
+
+				<p:contextMenu>
+
+					<p:menuitem value="Novo" actionListener="#{MBTurma.novo}"
+						onclick="PF('dlgTurmaNovo').show();" process="@this"
+						update=":frmTurmaListagem:tblTurmaListagem :msgGlobal"
+						icon="ui-icon-document" />
+
+					<p:menuitem value="Atualizar" onclick="window.location.reload();"
+						icon="ui-icon-arrowrefresh-1-e" />
+
+					<p:menuitem value="Voltar ao início" icon="ui-icon-home"
+						onclick="window.location.href='principal.xhtml';" />
+
+					<p:menuitem value="Sair" onclick="#logout" icon="" />
+				</p:contextMenu>
+
+			</h:form>
+		</p:dialog>
+
+
+	</ui:define>
+</ui:composition>

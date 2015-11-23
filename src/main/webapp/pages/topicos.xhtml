@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="/templates/modeloSistema.xhtml">
+
+	<ui:define name="header">
+		<ui:include src="/includes/header.xhtml" />
+	</ui:define>
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuAlternativo.xhtml" />
+	</ui:define>
+
+	<ui:define name="bottom">
+		<ui:include src="/includes/bottom.xhtml" />
+	</ui:define>
+
+	<ui:define name="conteudo">
+		<f:event listener="#{MBTopico.carregarListagem}" type="preRenderView" />
+
+		<h:form id="frmTopListagem">
+			<p:dataTable id="tblTopListagem" widgetVar="tabelaTopListagem"
+				emptyMessage="Nenhum Registro Encontrado!" value="#{MBTopico.itens}"
+				var="item" paginator="true" rows="8"
+				filteredValue="#{MBTopico.itensFiltrados}">
+
+				<f:facet name="header">
+					<h:outputText value="Cadastro de Tópicos" />
+				</f:facet>
+
+				<p:column headerText="Código" sortBy="#{item.codigo}"
+					filterBy="#{item.codigo}">
+					<h:outputText value="#{item.codigo}" />
+				</p:column>
+
+				<p:column headerText="Descrição" sortBy="#{item.descricao}"
+					filterBy="#{item.descricao}">
+					<h:outputText value="#{item.descricao}" />
+				</p:column>
+
+				<p:column headerText="Disciplina"
+					sortBy="#{item.disciplina.descricao}"
+					filterBy="#{item.disciplina.descricao}">
+					<h:outputText value="#{item.disciplina.descricao}" />
+				</p:column>
+
+				<p:column headerText="Opções" style="text-align: center;">
+					<p:commandButton icon="ui-icon-trash"
+						oncomplete="PF('dlgTopExcluir').show();"
+						update=":frmTopExcluir:pnlTopExcluir">
+						<f:setPropertyActionListener target="#{MBTopico.topico}"
+							value="#{item}" />
+					</p:commandButton>
+
+					<p:commandButton icon="ui-icon-pencil"
+						action="#{MBTopico.prepararEditar}"
+						oncomplete="PF('dlgTopEditar').show();"
+						update=":frmTopEditar:pnlTopEditar">
+						<f:setPropertyActionListener target="#{MBTopico.topico}"
+							value="#{item}" />
+					</p:commandButton>
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton icon="ui-icon-document" value="Novo"
+						oncomplete="PF('dlgTopNovo').show();"
+						actionListener="#{MBTopico.prepararNovo}"
+						update=":frmTopNovo:pnlTopNovo :msgGlobal" />
+				</f:facet>
+			</p:dataTable>
+		</h:form>
+
+		<p:dialog widgetVar="dlgTopNovo" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Cadastro de Tópico">
+			<h:form id="frmTopNovo">
+				<h:panelGrid id="pnlTopNovo" columns="2">
+
+					<h:outputLabel for="somTopNovo" value="Disciplina: " />
+					<p:selectOneMenu value="#{MBTopico.topico.disciplina.codigo}"
+						required="true" filter="true"
+						requiredMessage="Por Favor, selecione uma disciplina.">
+
+						<f:selectItem id="somTopNovo" itemLabel="Selecione a Disciplina"
+							itemValue="" />
+
+						<f:selectItems value="#{MBTopico.comboDisciplinas}" var="item"
+							itemValue="#{item.codigo}" itemLabel="#{item.descricao}" />
+
+					</p:selectOneMenu>
+
+					<h:outputText value="Descrição: " />
+					<p:inputText value="#{MBTopico.topico.descricao}" required="true"
+						requiredMessage="Por Favor, insira uma descrição." />
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar" actionListener="#{MBTopico.novo}"
+						update=":msgGlobal :frmTopListagem:tblTopListagem"
+						oncomplete="verificar(xhr, status, args, 'dlgTopNovo', 'tabelaTopListagem')" />
+					<p:commandButton value="Cancelar"
+						oncomplete="PF('dlgTopNovo').hide();" process="@this">
+						<p:resetInput target="dlgTopNovo" />
+					</p:commandButton>
+				</h:panelGrid>
+			</h:form>
+
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgTopExcluir" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Excluir Tópico">
+			<h:form id="frmTopExcluir">
+				<h:panelGrid id="pnlTopExcluir" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+					<h:outputLabel value="Código:" />
+					<h:outputText value="#{MBTopico.topico.codigo}" />
+
+					<h:outputLabel value="Descrição:" />
+					<h:outputText value="#{MBTopico.topico.descricao}" />
+
+					<h:outputLabel value="Disciplina:" />
+					<h:outputText value="#{MBTopico.topico.disciplina.descricao}" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Excluir" icon="ui-icon-trash"
+						actionListener="#{MBTopico.excluir}"
+						update=":msgGlobal :frmTopListagem:tblTopListagem"
+						oncomplete="PF('dlgTopExcluir').hide(); tabelaTopListagem.clearFilters();" />
+
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgTopExcluir').hide();" process="@this" />
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgTopEditar" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Editar Tópico">
+			<h:form id="frmTopEditar">
+				<h:panelGrid id="pnlTopEditar" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+					<h:outputLabel value="Descrição:" />
+					<p:inputText value="#{MBTopico.topico.descricao}" />
+
+					<h:outputLabel value="Disciplina:" />
+					<p:selectOneMenu value="#{MBTopico.topico.disciplina.codigo}"
+						required="true" filter="true"
+						requiredMessage="Por Favor, selecione uma disciplina.">
+
+						<f:selectItem id="somTopNovo" itemLabel="Selecione a Disciplina"
+							itemValue="" />
+
+						<f:selectItems value="#{MBTopico.comboDisciplinas}" var="item"
+							itemValue="#{item.codigo}" itemLabel="#{item.descricao}" />
+
+					</p:selectOneMenu>
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar" icon="ui-icon-disk"
+						actionListener="#{MBTopico.editar}"
+						update=":msgGlobal :frmTopListagem:tblTopListagem"
+						oncomplete="verificar(xhr, status, args, 'dlgTopEditar', 'tabelaTopListagem')" />
+
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgTopEditar').hide();" process="@this">
+						<p:resetInput target="dlgTopEditar" />
+					</p:commandButton>
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>

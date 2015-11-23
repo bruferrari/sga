@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="/templates/modeloSistema.xhtml">
+
+	<ui:define name="header">
+		<ui:include src="/includes/header.xhtml" />
+	</ui:define>
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuAlternativo.xhtml" />
+	</ui:define>
+
+	<ui:define name="bottom">
+		<ui:include src="/includes/bottom.xhtml" />
+	</ui:define>
+
+	<ui:define name="conteudo">
+		<f:event listener="#{MBQuestao.carregarListagem}" type="preRenderView" />
+
+		<h:form id="frmBancoQuestoes">
+			<p:dataTable id="tblBancoQuestoes" widgetVar="tabelaBancoQuestoes"
+				emptyMessage="Nenhum registro encontrado!" var="item"
+				value="#{MBQuestao.itens}" paginator="true" rows="8"
+				filteredValue="#{MBQuestao.itensFiltrados}">
+
+				<f:facet name="header">
+					<h:outputText value="Banco de Questões" />
+				</f:facet>
+
+				<p:column headerText="Código" sortBy="#{item.codigo}"
+					filterBy="#{item.codigo}">
+					<h:outputText value="#{item.codigo}" />
+				</p:column>
+
+				<p:column headerText="Assunto" sortBy="#{item.assunto}"
+					filterBy="#{item.assunto}">
+					<h:outputText value="#{item.assunto}" />
+				</p:column>
+
+				<p:column headerText="Dificuldade" sortBy="#{item.dificuldade}"
+					filterBy="#{item.dificuldade}">
+					<h:outputText value="#{item.dificuldade}" />
+				</p:column>
+
+				<p:column headerText="Enunciado" sortBy="#{item.enunciado}"
+					filterBy="#{item.enunciado}">
+					<h:outputText value="#{item.enunciado}" />
+				</p:column>
+
+				<p:column headerText="Opções" style="text-align: center;">
+					<p:commandButton icon="ui-icon-trash"
+						oncomplete="PF('dlgQuestaoExcluir').show();"
+						update=":frmQuestaoExcluir:pnlQuestaoExcluir">
+						<f:setPropertyActionListener target="#{MBQuestao.questao}"
+							value="#{item}" />
+					</p:commandButton>
+					<p:commandButton icon="ui-icon-pencil"
+						oncomplete="PF('dlgQuestaoEditar').show();"
+						update=":frmQuestaoEditar:pnlQuestaoEditar" />
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton value="Novo" icon="ui-icon-document"
+						oncomplete="PF('dlgQuestNovo').show();"
+						actionListener="#{MBQuestao.prepararNovo}"
+						update=":frmQuestNovo:pnlQuestNovo :msgGlobal" />
+				</f:facet>
+			</p:dataTable>
+
+			<p:contextMenu>
+
+				<p:menuitem value="Novo" actionListener="#" icon="ui-icon-document" />
+
+				<p:menuitem value="Atualizar" onclick="window.location.reload();"
+					icon="ui-icon-arrowrefresh-1-e" />
+
+				<p:menuitem value="Voltar ao início" icon="ui-icon-home"
+					onclick="window.location.href='principal.xhtml';" />
+
+				<p:menuitem value="Sair" onclick="#logout" icon="" />
+			</p:contextMenu>
+
+		</h:form>
+
+		<p:dialog widgetVar="dlgQuestNovo" draggable="true" resizable="true"
+			closable="false" modal="true" appendTo="@(body)"
+			header="Cadastrar nova questão">
+			<h:form id="frmQuestNovo">
+				<h:panelGrid id="pnlQuestNovo" columns="2" width="100%"
+					cellpadding="5">
+					<p:outputLabel for="txtAssuntoQuestNovo" value="Assunto: " />
+					<p:inputText id="txtAssuntoQuestNovo"
+						value="#{MBQuestao.questao.assunto}" maxlength="255" size="50"
+						required="true"
+						requiredMessage="Por favor, preencha o campo 'Assunto'" />
+
+					<p:outputLabel for="sorQuestDificuldade" value="Dificuldade: " />
+					<p:selectOneRadio id="sorQuestDificuldade"
+						value="#{MBQuestao.questao.dificuldade}" required="true"
+						requiredMessage="Por favor, selecione o nível de dificuldade da questão.">
+						<f:selectItem itemLabel="1" itemValue="1" />
+						<f:selectItem itemLabel="2" itemValue="2" />
+						<f:selectItem itemLabel="3" itemValue="3" />
+						<f:selectItem itemLabel="4" itemValue="4" />
+						<f:selectItem itemLabel="5" itemValue="5" />
+					</p:selectOneRadio>
+
+					<p:outputLabel for="editorQuestEnunciado" value="Enunciado: " />
+					<p:editor width="800" height="350" id="editorQuestEnunciado"
+						value="#{MBQuestao.questao.enunciado}" required="true"
+						requiredMessage="Por favor, insira um enunciado para a questão." />
+					<p:outputLabel for="sorQuestResposta" value="Resposta correta:" />
+					<p:selectOneRadio id="sorQuestResposta" required="false"
+						requiredMessage="Por favor, informe uma alternativa correta para a questão.">
+						<f:selectItem itemLabel="A" itemValue="a" />
+						<f:selectItem itemLabel="B" itemValue="b" />
+						<f:selectItem itemLabel="C" itemValue="c" />
+						<f:selectItem itemLabel="D" itemValue="d" />
+						<f:selectItem itemLabel="E" itemValue="e" />
+					</p:selectOneRadio>
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar" icon="ui-icon-disk"
+						actionListener="#{MBQuestao.novo}"
+						update=":msgGlobal :frmBancoQuestoes:tblBancoQuestoes"
+						oncomplete="verificar(xhr, status, args, 'dlgQuestNovo', 'tabelaBancoQuestoes')" />
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgQuestNovo').hide();" process="@this" />
+				</h:panelGrid>
+
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgQuestaoExcluir" closable="false"
+			draggable="false" resizable="false" modal="true" appendTo="@(body)"
+			header="Excluir questão">
+			<h:form id="frmQuestaoExcluir">
+				<h:panelGrid id="pnlQuestaoExcluir" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+
+					<p:outputLabel value="Código: " />
+					<h:outputText value="#{MBQuestao.questao.codigo}" />
+
+					<p:outputLabel value="Assunto: " />
+					<h:outputText value="#{MBQuestao.questao.assunto}" />
+
+					<p:outputLabel value="Dificuldade: " />
+					<h:outputText value="#{MBQuestao.questao.dificuldade}" />
+
+					<p:outputLabel value="Enunciado: " />
+					<h:outputLabel value="#{MBQuestao.questao.enunciado}" />
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Excluir" icon="ui-icon-trash"
+						actionListener="#{MBQuestao.excluir}"
+						update=":msgGlobal :frmBancoQuestoes:tblBancoQuestoes"
+						oncomplete="PF('dlgQuestaoExcluir').hide(); tabelaBancoQuestoes.clearFilters();" />
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgQuestaoExcluir').hide();" process="@this" />
+				</h:panelGrid>
+			</h:form>
+
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgQuestaoEditar" closable="false"
+			draggable="false" resizable="false" modal="true" appendTo="@(body)"
+			header="Editar Questão">
+			<h:form id="frmQuestaoEditar">
+				<h:panelGrid id="pnlQuestaoEditar" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+					<p:outputLabel value="Código: " />
+					<h:outputText value="#{MBQuestao.questao.codigo}" />
+
+					<p:outputLabel value="Assunto: " />
+					<p:inputText value="#{MBQuestao.questao.assunto}" />
+
+					<p:outputLabel for="sorQuestDificuldadeEditar"
+						value="Dificuldade: " />
+					<p:selectOneRadio id="sorQuestDificuldadeEditar"
+						value="#{MBQuestao.questao.dificuldade}" required="true"
+						requiredMessage="Por favor, selecione o nível de dificuldade da questão.">
+						<f:selectItem itemLabel="1" itemValue="1" />
+						<f:selectItem itemLabel="2" itemValue="2" />
+						<f:selectItem itemLabel="3" itemValue="3" />
+						<f:selectItem itemLabel="4" itemValue="4" />
+						<f:selectItem itemLabel="5" itemValue="5" />
+					</p:selectOneRadio>
+
+					<p:outputLabel for="editorQuestEnunciadoEditar" value="Enunciado: " />
+					<p:editor width="800" height="350" id="editorQuestEnunciadoEditar"
+						value="#{MBQuestao.questao.enunciado}" required="true"
+						requiredMessage="Por favor, insira um enunciado para a questão." />
+
+					<p:outputLabel for="sorQuestRespostaEditar"
+						value="Resposta correta: " />
+					<p:selectOneRadio id="sorQuestRespostaEditar" required="false"
+						requiredMessage="Por favor, informe uma alternativa correta para a questão.">
+						<f:selectItem itemLabel="A" itemValue="a" />
+						<f:selectItem itemLabel="B" itemValue="b" />
+						<f:selectItem itemLabel="C" itemValue="c" />
+						<f:selectItem itemLabel="D" itemValue="d" />
+						<f:selectItem itemLabel="E" itemValue="e" />
+					</p:selectOneRadio>
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Excluir" icon="ui-icon-trash" />
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgQuestaoEditar').hide();" process="@this" />
+				</h:panelGrid>
+			</h:form>
+
+		</p:dialog>
+
+	</ui:define>
+
+</ui:composition>

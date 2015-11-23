@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="/templates/modeloSistema.xhtml">
+
+	<ui:define name="header">
+		<ui:include src="/includes/header.xhtml" />
+	</ui:define>
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuAlternativo.xhtml" />
+	</ui:define>
+
+	<ui:define name="bottom">
+		<ui:include src="/includes/bottom.xhtml" />
+	</ui:define>
+
+	<ui:define name="conteudo">
+		<h:form id="frmAvaliacaoListagem">
+			<p:dataTable id="tblAvaliacaoListagem"
+				widgetVar="tabelaAvaliacaoListagem"
+				emptyMessage="Nenhum registro encontrado!"
+				var="item" paginator="true" rows="8">
+				
+				<f:facet name="header">
+					<h:outputText value="Gera Avaliação" />
+				</f:facet>
+				
+				<p:column headerText="Código da avaliação"> </p:column>
+				<p:column headerText="Número da Prova"></p:column>
+				<p:column headerText="Turma para aplicação"></p:column>
+			</p:dataTable>
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

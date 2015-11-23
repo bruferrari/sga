@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="/templates/modeloSistema.xhtml">
+
+	<ui:define name="header">
+		<ui:include src="/includes/header.xhtml" />
+	</ui:define>
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuAlternativo.xhtml" />
+	</ui:define>
+
+	<ui:define name="bottom">
+		<ui:include src="/includes/bottom.xhtml" />
+	</ui:define>
+
+	<ui:define name="conteudo">
+		<f:event listener="#{MBDisciplina.carregarListagem}"
+			type="preRenderView" />
+
+		<h:form id="frmDiscListagem">
+			<p:dataTable id="tblDiscListagem" widgetVar="tabelaDiscListagem"
+				emptyMessage="Nenhum registro encontrado!"
+				value="#{MBDisciplina.itens}" var="item" paginator="true" rows="8"
+				filteredValue="#{MBDisciplina.itensFiltrados}">
+
+				<f:facet name="header">
+					<h:outputText value="Cadastro de Disciplinas" />
+				</f:facet>
+
+				<p:column headerText="Código" sortBy="#{item.codigo}"
+					filterBy="#{item.codigo}">
+					<h:outputText value="#{item.codigo}" />
+				</p:column>
+
+				<p:column headerText="Descrição" sortBy="#{item.descricao}"
+					filterBy="#{item.descricao}">
+					<h:outputText value="#{item.descricao}" />
+				</p:column>
+
+				<p:column headerText="Opções" style="text-align: center;">
+					<p:commandButton icon="ui-icon-trash"
+						oncomplete="PF('dlgDiscExcluir').show();"
+						update=":frmDiscExcluir:pnlDiscExcluir">
+						<f:setPropertyActionListener target="#{MBDisciplina.disciplina}"
+							value="#{item}" />
+					</p:commandButton>
+					<p:commandButton icon="ui-icon-pencil"
+						actionListener="#{MBDisciplina.prepararEditar}"
+						oncomplete="PF('dlgDiscEditar').show();"
+						update=":frmDiscEditar:pnlDiscEditar">
+						<f:setPropertyActionListener target="#{MBDisciplina.disciplina}"
+							value="#{item}"></f:setPropertyActionListener>
+					</p:commandButton>
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton value="Novo" icon="ui-icon-document"
+						oncomplete="PF('dlgDiscNovo').show();"
+						actionListener="#{MBDisciplina.prepararNovo}"
+						update=":frmDiscNovo:pnlDiscNovo :msgGlobal" />
+				</f:facet>
+			</p:dataTable>
+		</h:form>
+
+
+		<p:dialog widgetVar="dlgDiscNovo" closable="false" resizable="false"
+			draggable="false" modal="true" appendTo="@(body)"
+			header="Disciplinas - Novo">
+
+			<h:form id="frmDiscNovo">
+				<h:panelGrid id="pnlDiscNovo" columns="2">
+					<p:outputLabel for="txtDescDiscNovo" value="Descrição: " />
+					<p:inputText id="txtDescDiscNovo"
+						value="#{MBDisciplina.disciplina.descricao}" maxlength="50"
+						size="30" required="true"
+						requiredMessage="O campo 'Descrição' deve ser preenchido" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar" icon="ui-icon-disk"
+						actionListener="#{MBDisciplina.novo}"
+						update=":msgGlobal :frmDiscListagem:tblDiscListagem"
+						oncomplete="verificar(xhr, status, args, 'dlgDiscNovo', 'tabelaDiscListagem')" />
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgDiscNovo').hide();" process="@this">
+						<p:resetInput target="dlgDiscNovo"></p:resetInput>
+						</p:commandButton>
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgDiscExcluir" closable="false"
+			draggable="false" resizable="false" modal="true" appendTo="@(body)"
+			header="Disciplina - Excluir">
+			<h:form id="frmDiscExcluir">
+				<h:panelGrid id="pnlDiscExcluir" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+					<p:outputLabel value="Código: " />
+					<h:outputText value="#{MBDisciplina.disciplina.codigo}" />
+
+					<p:outputLabel value="Descrição: " />
+					<h:outputText value="#{MBDisciplina.disciplina.descricao}" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Excluir" icon="ui-icon-trash"
+						actionListener="#{MBDisciplina.excluir}"
+						update=":msgGlobal :frmDiscListagem:tblDiscListagem"
+						oncomplete="PF('dlgDiscExcluir').hide(); tabelaDiscListagem.clearFilters();" />
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgDiscExcluir').hide();" />
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgDiscEditar" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Disciplina - Editar">
+			<h:form id="frmDiscEditar">
+				<h:panelGrid id="pnlDiscEditar" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+					<p:outputLabel value="Código: " />
+					<h:outputText value="#{MBDisciplina.disciplina.codigo}" />
+
+					<p:outputLabel for="txtDescDiscEditar" value="Descrição: " />
+					<p:inputText id="txtDescDiscEditar"
+						value="#{MBDisciplina.disciplina.descricao}" required="true"
+						requiredMessage="O campo 'Descrição' deve ser preenchido" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar" icon="ui-icon-disk"
+						actionListener="#{MBDisciplina.editar}"
+						update=":msgGlobal :frmDiscListagem:tblDiscListagem"
+						oncomplete="verificar(xhr, status, args, 'dlgDiscEditar', 'tabelaDiscListagem')" />
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgDiscEditar').hide();" process="@this">
+						<p:resetInput target="dlgDiscEditar"></p:resetInput>
+						</p:commandButton>
+				</h:panelGrid>
+
+				<p:contextMenu>
+
+					<p:menuitem value="Novo" actionListener="#{MBDisciplina.novo}"
+						onclick="PF('dlgDiscNovo').show();"
+						update=":frmDiscListagem:tblDiscListagem :msgGlobal"
+						icon="ui-icon-document" />
+
+					<p:menuitem value="Atualizar" onclick="window.location.reload();"
+						icon="ui-icon-arrowrefresh-1-e" />
+
+					<p:menuitem value="Voltar ao início" icon="ui-icon-home"
+						onclick="window.location.href='principal.xhtml';" />
+
+					<p:menuitem value="Sair" onclick="#logout" icon="" />
+				</p:contextMenu>
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>

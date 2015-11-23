@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	template="/templates/modeloSistema.xhtml">
+
+	<ui:define name="header">
+		<ui:include src="/includes/header.xhtml" />
+	</ui:define>
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuAlternativo.xhtml" />
+	</ui:define>
+
+	<ui:define name="bottom">
+		<ui:include src="/includes/bottom.xhtml"></ui:include>
+	</ui:define>
+
+	<ui:define name="conteudo">
+		<h:form id="frmProfListagem">
+
+			<p:dataTable id="tblProfessores" widgetVar="tabelaProfListagem"
+				emptyMessage="Nenhum registro encontrado."
+				value="#{MBProfessor.itens}" var="item" paginator="true" rows="8"
+				filteredValue="#{MBProfessor.itensFiltrados}">
+
+				<f:facet name="header">Professores - Listagem</f:facet>
+
+				<p:column headerText="Código" sortBy="#{item.profCod}"
+					filterBy="#{item.profCod}">
+					<h:outputText value="#{item.profCod}" />
+				</p:column>
+				<p:column headerText="Nome" sortBy="#{item.profNome}"
+					filterBy="#{item.profNome}">
+					<h:outputText value="#{item.profNome}" />
+				</p:column>
+				<p:column headerText="Área de Atuação"
+					sortBy="#{item.profAreaAtuacao}" filterBy="#{item.profAreaAtuacao}">
+					<h:outputText value="#{item.profAreaAtuacao}" />
+				</p:column>
+				<p:column headerText="Campus" sortBy="#{item.profCampus}"
+					filterBy="#{item.profCampus}">
+					<h:outputText value="#{item.profCampus}" />
+				</p:column>
+
+				<p:column headerText="Opções" style="text-align: center;">
+					<p:commandButton icon="ui-icon-trash"
+						actionListener="#{MBProfessor.prepararExcluir}"
+						oncomplete="PF('dlgProfExcluir').show();"
+						update=":frmProfExcluir:pnlProfExcluir" />
+
+					<p:commandButton icon="ui-icon-pencil"
+						actionListener="#{MBProfessor.prepararEditar}"
+						oncomplete="PF('dlgProfEditar').show();"
+						update=":frmProfEditar:pnlProfEditar" />
+
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton icon="ui-icon-document" value="Novo"
+						actionListener="#{MBProfessor.prepararNovo}"
+						oncomplete="PF('dlgProfNovo').show();" />
+				</f:facet>
+			</p:dataTable>
+
+		</h:form>
+
+		<p:dialog widgetVar="dlgProfExcluir" closable="false"
+			draggable="false" modal="true" resizable="false" appendTo="@(body)"
+			header="Exclusão de Professor">
+			<h:form id="frmProfExcluir">
+				<h:panelGrid id="pnlProfExcluir" columns="2">
+					<p:outputLabel value="Código" />
+					<h:outputText value="#{MBProfessor.professor.profCod}" />
+
+					<p:outputLabel value="Nome" />
+					<h:outputText value="#{MBProfessor.professor.profNome}" />
+
+				</h:panelGrid>
+				<h:panelGrid columns="2">
+					<p:commandButton value="Excluir" icon="ui-icon-trash"
+						actionListener="#{MBProfessor.excluir}"
+						oncomplete="PF('dlgProfExcluir').hide();"
+						update=":frmProfListagem:tblProfessores: :msgGlobal" />
+
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						onclick="PF('dlgProfExcluir').hide();" />
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgProfEditar" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Editar Professor">
+			<h:form id="frmProfEditar">
+				<h:panelGrid id="pnlProfEditar" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+					<h:outputLabel value="Código" />
+					<h:outputText value="#{MBProfessor.professor.profCod}" />
+
+					<h:outputLabel for="txtNomeProfEditar" value="Nome" />
+					<p:inputText id="txtNomeProfEditar"
+						value="#{MBProfessor.professor.profNome}" required="true"
+						requiredMessage="O campo Nome deve ser preenchido" />
+
+					<h:outputLabel for="txtAreaAtuacaoProfEditar"
+						value="Área de Atuação" />
+					<p:inputText id="txtAreaAtuacaoProfEditar"
+						value="#{MBProfessor.professor.profAreaAtuacao}" required="true"
+						requiredMessage="O campo Área de Atuação deve ser preenchido" />
+
+					<h:outputLabel for="somCampusProfEditar" value="Campus" />
+					<p:selectOneMenu id="somCampusProfEditar"
+						value="#{MBProfessor.professor.profCampus}" required="true"
+						requiredMessage="O campo 'Campus' deve ser selecionado.">
+						<f:selectItem itemLabel="Selecione uma FATEC" itemValue="" />
+						<f:selectItem itemLabel="Fatec Ourinhos"
+							itemValue="Fatec Ourinhos" />
+						<f:selectItem itemLabel="Fatec Bauru" itemValue="Fatec Bauru" />
+						<f:selectItem itemLabel="Fatec Carapicuíba"
+							itemValue="Fatec Carapicuíba" />
+						<f:selectItem itemLabel="Fatec Grande São Paulo"
+							itemValue="Fatec Grande São Paulo" />
+					</p:selectOneMenu>
+
+					<h:outputLabel for="pwdSenhaProfEditar" value="Senha" />
+					<p:password id="pwdSenhaProfEditar"
+						value="#{MBProfessor.professor.profSenha}" feedback="true"
+						inline="true" weakLabel="Fraca" goodLabel="Razoável"
+						strongLabel="Forte" promptLabel="Por favor, digite sua senha"
+						required="true"
+						requiredMessage="O campo 'Senha' deve ser preenchido" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar" icon="ui-icon-disk"
+						actionListener="#{MBProfessor.editar}"
+						oncomplete="verificar(xhr, status, args,'dlgProfEditar', 'tabelaProfListagem')"
+						update=":msgGlobal :frmProfListagem:tblProfessores" />
+
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						onclick="PF('dlgProfEditar').hide();" process="@this" />
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgProfNovo" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Novo Professor">
+			<h:form id="frmProfNovo">
+				<h:panelGrid id="pnlProfNovo" columns="2" style="margin-bottom:10px"
+					cellpadding="5">
+					<p:outputLabel value="Nome" />
+					<p:inputText id="txtNomeProfNovo"
+						value="#{MBProfessor.professor.profNome}" required="true"
+						requiredMessage="O campo Nome deve ser preenchido" />
+					<p:outputLabel value="Área de Atuação" />
+					<p:inputText value="#{MBProfessor.professor.profAreaAtuacao}"
+						required="true"
+						requiredMessage="O campo Área de Atuação deve ser preenchido" />
+					<p:outputLabel value="Campus" />
+					<p:selectOneMenu id="somCampusProfEditar"
+						value="#{MBProfessor.professor.profCampus}" required="true"
+						requiredMessage="O campo 'Campus' deve ser selecionado.">
+						<f:selectItem itemLabel="Selecione uma FATEC" itemValue="" />
+						<f:selectItem itemLabel="Fatec Ourinhos"
+							itemValue="Fatec Ourinhos" />
+						<f:selectItem itemLabel="Fatec Bauru" itemValue="Fatec Bauru" />
+						<f:selectItem itemLabel="Fatec Carapicuíba"
+							itemValue="Fatec Carapicuíba" />
+						<f:selectItem itemLabel="Fatec Grande São Paulo"
+							itemValue="Fatec Grande São Paulo" />
+					</p:selectOneMenu>
+
+
+					<h:outputLabel value="Senha" />
+					<p:password value="#{MBProfessor.professor.profSenha}"
+						feedback="true" inline="true" weakLabel="Fraca"
+						goodLabel="Razoável" strongLabel="Forte"
+						promptLabel="Por favor, digite sua senha" required="true"
+						requiredMessage="O campo 'Senha' deve ser preenchido" />
+
+				</h:panelGrid>
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar" icon="ui-icon-disk"
+						actionListener="#{MBProfessor.novo}"
+						update=":msgGlobal :frmProfListagem:tblProfessores"
+						oncomplete="verificar(xhr, status, args, 'dlgProfNovo', 'tabelaProfListagem');" />
+
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						onclick="PF('dlgProfNovo').hide();" process="@this" />
+				</h:panelGrid>
+
+				<p:contextMenu>
+
+					<p:menuitem value="Novo" actionListener="#{MBProfessor.novo}"
+						onclick="PF('dlgProfNovo').show();"
+						update=":frmProfListagem:tblProfessores :msgGlobal"
+						icon="ui-icon-document" />
+
+					<p:menuitem value="Atualizar" onclick="window.location.reload();"
+						icon="ui-icon-arrowrefresh-1-e" />
+
+					<p:menuitem value="Voltar ao início" icon="ui-icon-home"
+						onclick="window.location.href='principal.xhtml';" />
+
+					<p:menuitem value="Sair" onclick="#logout" icon="" />
+				</p:contextMenu>
+			</h:form>
+		</p:dialog>
+	</ui:define>
+</ui:composition>

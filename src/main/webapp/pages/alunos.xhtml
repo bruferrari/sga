@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="/templates/modeloSistema.xhtml">
+
+	<ui:define name="header">
+		<ui:include src="/includes/header.xhtml" />
+	</ui:define>
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuAlternativo.xhtml" />
+	</ui:define>
+
+	<ui:define name="bottom">
+		<ui:include src="/includes/bottom.xhtml" />
+	</ui:define>
+
+	<ui:define name="conteudo">
+		<f:event listener="#{MBAluno.carregarListagem}" type="preRenderView" />
+
+		<h:form id="frmAlunoListagem">
+			<p:dataTable id="tblAlunoListagem" widgetVar="tabelaAlunoListagem"
+				emptyMessage="Nenhum registro encontrado!" value="#{MBAluno.itens}"
+				var="item" paginator="true" rows="8"
+				filteredValue="#{MBAluno.itensFiltrados}">
+
+				<f:facet name="header">
+					<h:outputText value="Cadastro de Alunos" />
+				</f:facet>
+
+				<p:column headerText="Registro de Aluno (R.A)" sortBy="#{item.ra}"
+					filterBy="#{item.ra}">
+					<h:outputText value="#{item.ra}" />
+				</p:column>
+
+				<p:column headerText="Nome" sortBy="#{item.nome}"
+					filterBy="#{item.nome}">
+					<h:outputText value="#{item.nome}" />
+				</p:column>
+
+				<p:column headerText="Opções" style="text-align: center;">
+					<p:commandButton icon="ui-icon-trash"
+						oncomplete="PF('dlgAlunoExcluir').show();"
+						update=":frmAlunoExcluir:pnlAlunoExcluir">
+						<f:setPropertyActionListener target="#{MBAluno.aluno}"
+							value="#{item}" />
+					</p:commandButton>
+					<p:commandButton icon="ui-icon-pencil"
+						oncomplete="PF('dlgAlunoEditar').show();"
+						update=":frmAlunoEditar:pnlAlunoEditar">
+						<f:setPropertyActionListener target="#{MBAluno.aluno}"
+							value="#{item}" />
+					</p:commandButton>
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton value="Novo" icon="ui-icon-document"
+						oncomplete="PF('dlgAlunoNovo').show();"
+						actionListener="#{MBAluno.prepararNovo}"
+						update=":frmAlunoNovo:pnlAlunoNovo :msgGlobal" />
+				</f:facet>
+			</p:dataTable>
+		</h:form>
+
+		<p:dialog widgetVar="dlgAlunoNovo" closable="false" resizable="false"
+			draggable="false" modal="true" appendTo="@(body)" header="Novo Aluno">
+			<h:form id="frmAlunoNovo">
+				<h:panelGrid id="pnlAlunoNovo" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+					<h:outputLabel value="R.A: " />
+					<p:inputText value="#{MBAluno.aluno.ra}" maxlength="50" size="10" />
+
+					<h:outputLabel value="Nome: " />
+					<p:inputText value="#{MBAluno.aluno.nome}" maxlength="50" size="30" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar" icon="ui-icon-disk"
+						actionListener="#{MBAluno.novo}"
+						update=":msgGlobal :frmAlunoListagem:tblAlunoListagem"
+						oncomplete="verificar(xhr, status, args, 'dlgAlunoNovo', 'tabelaAlunoListagem')" />
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgAlunoNovo').hide();" process="@this">
+						<p:resetInput target="dlgAlunoNovo" />
+					</p:commandButton>
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgAlunoExcluir" closable="false"
+			draggable="false" resizable="false" modal="true" appendTo="@(body)"
+			header="Confirma Exclusão de Aluno?">
+			<h:form id="frmAlunoExcluir">
+				<h:panelGrid id="pnlAlunoExcluir" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+					<h:outputLabel value="R.A: " />
+					<h:outputText value="#{MBAluno.aluno.ra}" />
+
+					<h:outputLabel value="Nome: " />
+					<h:outputText value="#{MBAluno.aluno.nome}" />
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Excluir" icon="ui-icon-trash"
+						actionListener="#{MBAluno.excluir}"
+						update=":msgGlobal :frmAlunoListagem:tblAlunoListagem"
+						oncomplete="PF('dlgAlunoExcluir').hide(); tabelaAlunoListagem.clearFilters();" />
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgAlunoExcluir').hide();" process="@this" />
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgAlunoEditar" closable="false"
+			draggable="false" resizable="false" modal="true" appendTo="@(body)"
+			header="Editar Aluno">
+			<h:form id="frmAlunoEditar">
+				<h:panelGrid id="pnlAlunoEditar" columns="2"
+					style="margin-bottom:10px" cellpadding="5">
+					<h:outputLabel value="R.A: " />
+					<h:outputText value="#{MBAluno.aluno.ra}" />
+
+					<h:outputLabel for="txtNomeAlunoEditar" value="Nome: " />
+					<p:inputText id="txtNomeAlunoEditar" value="#{MBAluno.aluno.nome}"
+						required="true"
+						requiredMessage="O campo 'Nome' deve ser preenchido" />
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar" icon="ui-icon-disk"
+						actionListener="#{MBAluno.editar}"
+						update=":msgGlobal :frmAlunoListagem:tblAlunoListagem"
+						oncomplete="verificar(xhr, status, args, 'dlgAlunoEditar', 'tabelaAlunoListagem')" />
+					<p:commandButton value="Cancelar" icon="ui-icon-cancel"
+						oncomplete="PF('dlgAlunoEditar').hide();" process="@this">
+						<p:resetInput target="dlgAlunoEditar" />
+					</p:commandButton>
+				</h:panelGrid>
+
+
+				<p:contextMenu>
+
+					<p:menuitem value="Novo" actionListener="#{MBAluno.novo}"
+						onclick="PF('dlgAlunoNovo').show();"
+						update=":frmAlunoListagem:tblAlunoListagem :msgGlobal"
+						icon="ui-icon-document" />
+
+					<p:menuitem value="Atualizar" onclick="window.location.reload();"
+						icon="ui-icon-arrowrefresh-1-e" />
+
+					<p:menuitem value="Voltar ao início" icon="ui-icon-home"
+						onclick="window.location.href='principal.xhtml';" />
+
+					<p:menuitem value="Sair" onclick="#logout" icon="" />
+				</p:contextMenu>
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>
